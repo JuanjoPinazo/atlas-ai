@@ -1,14 +1,6 @@
 import Link from 'next/link';
-import { Settings, BrainCircuit, FileText, Database, GitMerge, Layers, Inbox, Component } from 'lucide-react';
-
-const brainNavigation = [
-  { name: 'Overview', href: '', icon: BrainCircuit },
-  { name: 'Domains', href: '/domains', icon: Layers },
-  { name: 'Sources', href: '/sources', icon: Inbox },
-  { name: 'Units', href: '/units', icon: Component },
-  { name: 'Proposals', href: '/proposals', icon: FileText },
-  { name: 'Settings', href: '/settings', icon: Settings },
-];
+import { BrainCircuit } from 'lucide-react';
+import { BRAIN_NAVIGATION } from '@/config/navigation';
 
 export default async function CompanyBrainLayout({
   children,
@@ -24,16 +16,16 @@ export default async function CompanyBrainLayout({
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
           <BrainCircuit className="w-8 h-8 text-indigo-500" />
-          Company Brain
+          Cerebro de Empresa
         </h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-          Manage the core intelligence, declarative configuration, and rules for your organization.
+          Gestiona el conocimiento base, reglas de negocio y automatizaciones de tu empresa.
         </p>
       </div>
 
       <div className="border-b border-slate-200 dark:border-slate-800 mb-6">
         <nav className="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
-          {brainNavigation.map((item) => (
+          {BRAIN_NAVIGATION.map((item) => (
             <Link
               key={item.name}
               href={`/${tenantId}/brain${item.href}`}

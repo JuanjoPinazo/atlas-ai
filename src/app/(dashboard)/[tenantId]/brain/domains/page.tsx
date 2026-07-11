@@ -1,4 +1,5 @@
 import { Layers } from 'lucide-react';
+import { PageHelpPanel } from '@/components/ui/help/PageHelpPanel';
 
 export default async function DomainsPage() {
   return (
@@ -7,21 +8,19 @@ export default async function DomainsPage() {
         <div>
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
             <Layers className="w-6 h-6 text-indigo-500" />
-            Knowledge Domains
+            Dominios
           </h2>
-          <p className="text-slate-500 text-sm mt-1">Hierarchical functional areas of the company.</p>
+          <p className="text-slate-500 text-sm mt-1">Organiza el conocimiento por departamentos o áreas.</p>
         </div>
-        <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors">
-          Add Domain
-        </button>
       </div>
       
-      <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-        <div className="p-12 text-center text-slate-500 dark:text-slate-400">
-          <Layers className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-4" />
-          <p>No domains configured yet.</p>
-          <p className="text-sm mt-1">Create domains like 'Sales', 'HR', or 'Legal' to categorize knowledge.</p>
-        </div>
+      <PageHelpPanel 
+        title="¿Qué son los Dominios?" 
+        description="Son como las carpetas o departamentos de tu empresa (Ej: 'Recursos Humanos', 'Ventas', 'Atención al Cliente'). Te permiten organizar la información para que sea más fácil de mantener."
+      />
+
+      <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+        <p className="text-slate-500 dark:text-slate-400 text-center py-12">Lista de dominios aparecerá aquí...</p>
       </div>
     </div>
   );

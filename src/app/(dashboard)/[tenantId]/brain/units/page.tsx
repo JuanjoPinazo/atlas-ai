@@ -1,4 +1,5 @@
 import { Component } from 'lucide-react';
+import { PageHelpPanel } from '@/components/ui/help/PageHelpPanel';
 
 export default async function UnitsPage() {
   return (
@@ -7,21 +8,19 @@ export default async function UnitsPage() {
         <div>
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
             <Component className="w-6 h-6 text-indigo-500" />
-            Knowledge Units
+            Unidades de Conocimiento
           </h2>
-          <p className="text-slate-500 text-sm mt-1">Atomic, versioned chunks of knowledge used for Context Packages.</p>
+          <p className="text-slate-500 text-sm mt-1">Reglas de negocio y conceptos específicos.</p>
         </div>
-        <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors">
-          Add Unit
-        </button>
       </div>
       
-      <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-        <div className="p-12 text-center text-slate-500 dark:text-slate-400">
-          <Component className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-4" />
-          <p>No knowledge units found.</p>
-          <p className="text-sm mt-1">Units are automatically extracted from sources or added manually.</p>
-        </div>
+      <PageHelpPanel 
+        title="¿Qué son las Unidades?" 
+        description="Son piezas de información muy concretas, como una política de devoluciones, un precio o una regla de atención al cliente. Al definirlas, te aseguras de que tus Empleados Digitales sigan las normas al pie de la letra."
+      />
+
+      <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+        <p className="text-slate-500 dark:text-slate-400 text-center py-12">Lista de unidades de conocimiento aparecerá aquí...</p>
       </div>
     </div>
   );
