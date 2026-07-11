@@ -23,10 +23,14 @@ import {
   UserCog,
   Globe,
   Compass,
-  GitMerge
+  GitMerge,
+  Network,
+  Stethoscope
 } from 'lucide-react';
 
 export const MAIN_NAVIGATION = [
+  { name: 'Business Assessment', href: '/assessment', icon: Stethoscope },
+  { name: 'Integration Hub', href: '/integration-hub', icon: Network },
   { name: 'Orchestrator', href: '/orchestrator', icon: GitMerge },
   { name: 'Atlas Discovery', href: '/discovery', icon: Compass },
   { name: 'Atlas HQ', href: '/command-center', icon: Globe },

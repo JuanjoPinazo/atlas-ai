@@ -13,6 +13,9 @@ export interface DBState {
   events: { id: string; type: string; payload: unknown; correlationId: string; causationId: string | null; timestamp: string; status: string }[];
   roi_events: { id: string; event_id: string; type: string; value: number; created_at: string }[];
   opportunities: { id: string; type: string; budget_id: string; status: string; impact: number; created_at: string }[];
+  connectors?: any[];
+  connector_logs?: any[];
+  assessments?: any[];
 }
 
 const INITIAL_STATE: DBState = {
@@ -26,7 +29,10 @@ const INITIAL_STATE: DBState = {
   ],
   events: [],
   roi_events: [],
-  opportunities: []
+  opportunities: [],
+  connectors: [],
+  connector_logs: [],
+  assessments: []
 };
 
 export class LocalDB {

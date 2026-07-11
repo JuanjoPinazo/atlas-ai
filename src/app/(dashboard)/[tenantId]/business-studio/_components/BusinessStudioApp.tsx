@@ -8,8 +8,8 @@ import { useBusinessStudio } from './useBusinessStudio';
 import { LivePreview } from './LivePreview';
 import { Step1Company, Step2Domains, Step3Policies, Step4Agent } from './steps/WizardSteps';
 
-export function BusinessStudioApp() {
-  const { state, isLoaded, updateState, nextStep, prevStep } = useBusinessStudio();
+export function BusinessStudioApp({ initialData }: { initialData?: any }) {
+  const { state, isLoaded, updateState, nextStep, prevStep } = useBusinessStudio(initialData);
   const router = useRouter();
   const params = useParams();
   const [isSimulatingCreation, setIsSimulatingCreation] = useState(false);

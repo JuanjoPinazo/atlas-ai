@@ -1,38 +1,45 @@
 import { DiscoveryResult } from '../schemas/discovery';
+import { AssessmentRepositoryFactory } from './assessment/assessment.factory';
 
 export class DiscoveryRepository {
-  static async simulateDiscoveryResult(data: any): Promise<DiscoveryResult> {
-    // Artificial logic based on wizard answers to simulate AI reasoning
+  static async getDiscoveryResultFromAssessment(sessionId: string): Promise<DiscoveryResult> {
+    const repo = AssessmentRepositoryFactory.getRepository();
+    const reportData = await repo.getReport(sessionId);
+
+    if (!reportData.data || !reportData.data.report.is_reviewed) {
+      throw new Error('No existe reporte válido o no ha sido revisado.');
+    }
+
+    const { scores, recommendations, report } = reportData.data;
+
+    const health = scores.find(s => s.index_name === 'Health')?.score || 0;
+    const opp = scores.find(s => s.index_name === 'Opportunity')?.score || 0;
+    const digital = scores.find(s => s.index_name === 'Digital Readiness')?.score || 0;
+
     return {
       id: `dis-${Date.now()}`,
-      clinic_name: data.clinicName || 'Clínica Demo',
-      health_score: 65,
-      opportunity_score: 92,
-      digital_readiness: 45,
-      dimensions: [
-        { name: 'Captación', score: 40 },
-        { name: 'Ventas', score: 55 },
-        { name: 'Fidelización', score: 30 },
-        { name: 'Operaciones', score: 60 },
-        { name: 'Finanzas', score: 75 }
-      ],
-      recommended_employees: [
-        { id: 'emp-1', name: 'Dra. Aida', role: 'Asistente de Rescates' },
-        { id: 'emp-2', name: 'Dr. Leo', role: 'Triaje 24/7' }
-      ],
-      recommended_packs: ['Atlas Dental Premium', 'Módulo de Ortodoncia Invisible'],
-      business_value_opportunities: [
-        { title: 'Recuperación de Cancelaciones de Última Hora', roi_estimate: 5500 },
-        { title: 'Seguimiento de Presupuestos > 1000€', roi_estimate: 12000 },
-        { title: 'Campaña Reactivación VIP Anual', roi_estimate: 8000 }
-      ],
-      total_roi_estimate: 25500,
+      clinic_name: 'Clínica Atlas', // This would come from org settings in a real app
+      health_score: health,
+      opportunity_score: opp,
+      digital_readiness: digital,
+      dimensions: scores.map(s => ({ name: s.index_name, score: s.score })),
+      recommended_employees: recommendations.filter(r => r.type === 'Employee Designer').map(r => ({
+        id: crypto.randomUUID(),
+        name: r.target_code,
+        role: r.title
+      })),
+      recommended_packs: recommendations.filter(r => r.type === 'Integration Hub').map(r => r.title),
+      business_value_opportunities: recommendations.map(r => ({
+        title: r.title,
+        roi_estimate: 15000 // Estimated fixed ROI for now as we don't have ABVL ROI tables locally
+      })),
+      total_roi_estimate: recommendations.length * 15000,
       proposal_price: 1500,
-      implementation_plan: [
-        { phase: 'Fase 1: Ingesta del ADN', description: 'Extracción de conocimiento y tono.', weeks: 2 },
-        { phase: 'Fase 2: Despliegue en Pruebas', description: 'Agentes en modo borrador.', weeks: 2 },
-        { phase: 'Fase 3: Autonomía Controlada', description: 'Toma de decisiones supervisada.', weeks: 4 }
-      ]
+      implementation_plan: recommendations.map((r, i) => ({
+        phase: `Fase ${i + 1}: ${r.title}`,
+        description: r.description,
+        weeks: 2
+      }))
     };
   }
 }

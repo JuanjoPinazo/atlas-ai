@@ -12,17 +12,17 @@
       },
       "correlationId": "b-3",
       "causationId": null,
-      "timestamp": "2026-07-11T08:55:25.812Z",
+      "timestamp": "2026-07-11T20:18:18.466Z",
       "status": "COMPLETED"
     }
   ],
   "roi_events": [
     {
-      "id": "roi-299pvhtxm",
+      "id": "roi-6kk9ijl1z",
       "event_id": "evt-3",
       "type": "ABVL-01",
       "value": 3000,
-      "created_at": "2026-07-11T08:55:25.812Z"
+      "created_at": "2026-07-11T20:18:18.466Z"
     }
   ],
   "opportunities": []

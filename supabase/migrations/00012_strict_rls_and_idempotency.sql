@@ -29,8 +29,13 @@ BEGIN
     RETURN (current_setting('request.jwt.claims', true)::jsonb ->> 'organization_id')::UUID;
   END IF;
   
-  -- Fallback: en entornos demo/aislados, asumimos auth.uid() = tenant_id
-  RETURN auth.uid();
+  -- Fallback 1: usamos auth.uid() si existe
+  IF auth.uid() IS NOT NULL THEN
+    RETURN auth.uid();
+  END IF;
+
+  -- Fallback 2: en entornos demo/aislados sin auth, devolvemos el tenant default
+  RETURN '00000000-0000-0000-0000-000000000000'::uuid;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

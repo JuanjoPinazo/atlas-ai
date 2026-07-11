@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS dental_budgets (
 
 CREATE TABLE IF NOT EXISTS dental_budget_status_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    organization_id UUID NOT NULL,
     budget_id UUID NOT NULL REFERENCES dental_budgets(id) ON DELETE CASCADE,
     previous_status VARCHAR(50),
     new_status VARCHAR(50) NOT NULL,

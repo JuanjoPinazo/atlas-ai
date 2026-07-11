@@ -28,8 +28,8 @@ const DEFAULT_STATE: BusinessStudioState = {
 
 const STORAGE_KEY = 'atlas_business_studio_state';
 
-export function useBusinessStudio() {
-  const [state, setState] = useState<BusinessStudioState>(DEFAULT_STATE);
+export function useBusinessStudio(initialData?: Partial<BusinessStudioState>) {
+  const [state, setState] = useState<BusinessStudioState>({ ...DEFAULT_STATE, ...initialData });
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from localStorage on mount
