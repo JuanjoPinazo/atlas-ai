@@ -25,13 +25,19 @@ export async function login(formData: FormData) {
   }
 
   // Check if profile is suspended
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('status')
     .eq('id', data.user.id)
     .single();
 
-  if (profile?.status === 'SUSPENDED') {
+  if (profileError || !profile) {
+    console.error('login: profile check failed', profileError);
+    await supabase.auth.signOut();
+    return { error: 'Error al verificar la cuenta' };
+  }
+
+  if (profile.status === 'SUSPENDED') {
     await supabase.auth.signOut();
     return { error: 'Cuenta suspendida' };
   }

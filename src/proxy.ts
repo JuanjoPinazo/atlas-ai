@@ -8,8 +8,13 @@ export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   const isPublicRoute = publicRoutes.some((route) => path.startsWith(route));
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+  const isDemoRoute = isDemoMode && path.startsWith('/demo-dental');
 
-  if (!user && !isPublicRoute) {
+  const isPublicDemoMode = process.env.VELSORA_DEMO_PUBLIC === 'true';
+  const isPublicDemoRoute = isPublicDemoMode && (path === '/' || path.startsWith('/demo-dental/discovery/interview'));
+
+  if (!user && !isPublicRoute && !isDemoRoute && !isPublicDemoRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);

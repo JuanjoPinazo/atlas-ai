@@ -26,6 +26,13 @@ export function Header() {
               </span>
             </div>
           )}
+          {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && (
+            <div className="hidden md:flex items-center gap-1.5 bg-amber-500/20 border border-amber-500/50 px-3 py-1 rounded-md ml-2">
+              <span className="text-xs font-bold text-amber-500 uppercase tracking-wider">
+                🔶 DEMO MODE
+              </span>
+            </div>
+          )}
           <div className="w-full max-w-md relative hidden md:block ml-4">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-4 w-4 text-slate-400" aria-hidden="true" />

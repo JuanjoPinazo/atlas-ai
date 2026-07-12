@@ -3,6 +3,10 @@ import { requireAuthenticatedUser } from '@/lib/auth/auth-utils';
 import { createClient } from '@/lib/supabase/server';
 
 export default async function Home() {
+  if (process.env.VELSORA_DEMO_PUBLIC === 'true') {
+    redirect('/demo-dental/discovery/interview');
+  }
+
   const user = await requireAuthenticatedUser();
   const supabase = await createClient();
 

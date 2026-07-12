@@ -9,14 +9,20 @@ export async function requireAuthenticatedUser() {
     redirect('/login');
   }
 
-  // Check if profile is active
-  const { data: profile } = await supabase
+  // Check if profile is active (Fail-closed)
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('status')
     .eq('id', user.id)
     .single();
 
-  if (profile?.status === 'SUSPENDED') {
+  if (profileError || !profile) {
+    console.error('requireAuthenticatedUser: profile lookup failed', profileError);
+    // Any error means we assume no access
+    redirect('/login?error=profile_error');
+  }
+
+  if (profile.status === 'SUSPENDED') {
     redirect('/login?error=suspended');
   }
 
@@ -27,19 +33,25 @@ export async function requireOrganizationMembership(tenantSlugOrId: string) {
   const user = await requireAuthenticatedUser();
   const supabase = await createClient();
 
-  // Find organization by slug or id
-  const { data: org } = await supabase
-    .from('organizations')
-    .select('id, slug, status')
-    .or(`id.eq.${tenantSlugOrId},slug.eq.${tenantSlugOrId}`)
-    .single();
+  // Find organization by slug or id safely to avoid filter injection
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(tenantSlugOrId);
+  
+  let orgQuery;
+  if (isUuid) {
+    orgQuery = supabase.from('organizations').select('id, slug, status').eq('id', tenantSlugOrId).single();
+  } else {
+    orgQuery = supabase.from('organizations').select('id, slug, status').eq('slug', tenantSlugOrId).single();
+  }
 
-  if (!org) {
+  const { data: org, error: orgError } = await orgQuery;
+
+  if (orgError || !org) {
+    console.error('requireOrganizationMembership: org lookup failed', orgError);
     redirect('/select-organization');
   }
 
   // Check membership
-  const { data: membership } = await supabase
+  const { data: membership, error: membershipError } = await supabase
     .from('organization_memberships')
     .select('role, status')
     .eq('organization_id', org.id)
@@ -49,11 +61,12 @@ export async function requireOrganizationMembership(tenantSlugOrId: string) {
   // If Superadmin, bypass membership check
   const isSuperadmin = await checkSuperadmin(user.id);
 
-  if (!membership && !isSuperadmin) {
-    redirect('/select-organization');
-  }
-
-  if (membership?.status === 'SUSPENDED') {
+  if (membershipError || !membership) {
+    if (!isSuperadmin) {
+      console.error('requireOrganizationMembership: membership lookup failed', membershipError);
+      redirect('/select-organization');
+    }
+  } else if (membership.status === 'SUSPENDED') {
     redirect('/select-organization?error=suspended');
   }
 
@@ -64,7 +77,7 @@ export async function requireRole(tenantSlugOrId: string, allowedRoles: string[]
   const { user, org, membership } = await requireOrganizationMembership(tenantSlugOrId);
 
   if (!allowedRoles.includes(membership.role) && membership.role !== 'SUPERADMIN') {
-    redirect(`/${org.slug}?error=unauthorized`);
+    redirect('/unauthorized');
   }
 
   return { user, org, membership };
@@ -88,12 +101,16 @@ async function checkSuperadmin(userId: string) {
   // The ADR says "SUPERADMIN: acceso global a VELSORA HQ".
   // A superadmin could be someone who has a membership with role = 'SUPERADMIN' in the "hq" or just any membership with SUPERADMIN.
   // For simplicity, let's assume if they have role = 'SUPERADMIN' in ANY organization, they are a superadmin.
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('organization_memberships')
     .select('role')
     .eq('user_id', userId)
     .eq('role', 'SUPERADMIN')
     .limit(1);
     
+  if (error) {
+    console.error('checkSuperadmin: failed', error);
+    return false; // Fail-closed
+  }
   return data && data.length > 0;
 }
