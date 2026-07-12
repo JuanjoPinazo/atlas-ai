@@ -27,20 +27,9 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect routes logic can go here. For example:
-  // if (!user && request.nextUrl.pathname.startsWith('/app')) {
-  //   const url = request.nextUrl.clone()
-  //   url.pathname = '/login'
-  //   return NextResponse.redirect(url)
-  // }
-
-  return supabaseResponse;
+  return { supabaseResponse, user };
 }

@@ -1,3 +1,6 @@
+import { requireOrganizationMembership } from '@/lib/auth/auth-utils';
+import { TenantProvider } from '@/components/providers/tenant-provider';
+
 export default async function TenantLayout({
   children,
   params,
@@ -7,13 +10,14 @@ export default async function TenantLayout({
 }) {
   const { tenantId } = await params;
   
-  // Here we would typically validate the tenantId against the DB
-  // or fetch tenant-specific configuration.
+  // Validate membership and get tenant info
+  const { user, org, membership } = await requireOrganizationMembership(tenantId);
   
   return (
-    <div className="flex flex-col flex-1 h-full w-full">
-      {/* Tenant Context Provider could wrap this */}
-      {children}
-    </div>
+    <TenantProvider value={{ user, org, membership }}>
+      <div className="flex flex-col flex-1 h-full w-full">
+        {children}
+      </div>
+    </TenantProvider>
   );
 }
