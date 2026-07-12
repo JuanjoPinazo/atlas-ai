@@ -22,7 +22,7 @@ export async function requireAuthenticatedUser() {
     redirect('/login?error=profile_error');
   }
 
-  if (profile.status === 'SUSPENDED') {
+  if (profile.status !== 'ACTIVE') {
     redirect('/login?error=suspended');
   }
 
@@ -33,7 +33,7 @@ export async function requireOrganizationMembership(tenantSlugOrId: string) {
   const user = await requireAuthenticatedUser();
   const supabase = await createClient();
 
-  // Find organization by slug or id safely to avoid filter injection
+  // Find organization by slug or id safely
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(tenantSlugOrId);
   
   let orgQuery;
@@ -50,6 +50,10 @@ export async function requireOrganizationMembership(tenantSlugOrId: string) {
     redirect('/select-organization');
   }
 
+  if (org.status !== 'ACTIVE') {
+    redirect('/select-organization?error=org_suspended');
+  }
+
   // Check membership
   const { data: membership, error: membershipError } = await supabase
     .from('organization_memberships')
@@ -58,19 +62,25 @@ export async function requireOrganizationMembership(tenantSlugOrId: string) {
     .eq('user_id', user.id)
     .single();
 
-  // If Superadmin, bypass membership check
+  // If Superadmin globally, they can bypass local membership
   const isSuperadmin = await checkSuperadmin(user.id);
 
   if (membershipError || !membership) {
     if (!isSuperadmin) {
-      console.error('requireOrganizationMembership: membership lookup failed', membershipError);
+      console.error('requireOrganizationMembership: membership lookup failed or user is not a member', membershipError);
       redirect('/select-organization');
     }
-  } else if (membership.status === 'SUSPENDED') {
-    redirect('/select-organization?error=suspended');
+  } else if (membership.status !== 'ACTIVE') {
+    // If membership exists but is not active (e.g. SUSPENDED), deny access EVEN IF superadmin
+    if (membership.status === 'SUSPENDED') {
+      redirect('/select-organization?error=suspended');
+    } else {
+      // Pending or other states
+      redirect('/select-organization?error=pending');
+    }
   }
 
-  return { user, org, membership: membership || { role: 'SUPERADMIN' } };
+  return { user, org, membership: membership || { role: 'SUPERADMIN', status: 'ACTIVE' } };
 }
 
 export async function requireRole(tenantSlugOrId: string, allowedRoles: string[]) {

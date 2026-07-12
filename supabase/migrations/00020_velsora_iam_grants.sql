@@ -89,15 +89,16 @@ DECLARE
 BEGIN
     FOR t IN SELECT unnest(core_tables)
     LOOP
-        -- Permitimos acceso a service_role
-        EXECUTE format('GRANT ALL ON TABLE public.%I TO service_role;', t);
-        
-        -- Permitimos acceso operativo para usuarios autenticados
-        EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.%I TO authenticated;', t);
-        
-        -- Para anon, se da GRANT pero las políticas RLS deben impedir el acceso. 
-        -- Algunas consultas previas al login pueden necesitar acceso muy restringido.
-        EXECUTE format('GRANT SELECT ON TABLE public.%I TO anon;', t);
+        IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = t) THEN
+            -- Permitimos acceso a service_role
+            EXECUTE format('GRANT ALL ON TABLE public.%I TO service_role;', t);
+            
+            -- Permitimos acceso operativo para usuarios autenticados
+            EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.%I TO authenticated;', t);
+            
+            -- Para anon, se da GRANT pero las políticas RLS deben impedir el acceso. 
+            EXECUTE format('GRANT SELECT ON TABLE public.%I TO anon;', t);
+        END IF;
     END LOOP;
 END;
 $$;
